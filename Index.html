@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Ano Novo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(120deg, #0d0d59, #800080, #ff6600);
+            background-size: 300% 300%;
+            animation: gradientBG 6s infinite ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 5rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 15px #ffcc00;
+            margin: 0;
+        }
+
+        p {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .signature {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .fireworks, .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Feliz Ano Novo!</h1>
+        <p>Que 2025 seja repleto de alegria, saúde e conquistas para todos nós!</p>
+        <div class="signature">Com carinho, <strong>Fabiano Correa</strong></div>
+    </div>
+    <canvas class="fireworks"></canvas>
+    <canvas class="confetti"></canvas>
+
+    <script>
+        // Fogos de artifício
+        const fireworksCanvas = document.querySelector('.fireworks');
+        const fireworksCtx = fireworksCanvas.getContext('2d');
+        fireworksCanvas.width = window.innerWidth;
+        fireworksCanvas.height = window.innerHeight;
+
+        const fireworksColors = ['255,215,0', '255,69,0', '255,105,180', '135,206,235', '50,205,50'];
+
+        class Firework {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.particles = [];
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push(new Particle(this.x, this.y, this.color));
+                }
+            }
+            draw() {
+                this.particles.forEach((particle) => particle.update());
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.opacity = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.opacity -= 0.02;
+                if (this.opacity > 0) {
+                    fireworksCtx.beginPath();
+                    fireworksCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    fireworksCtx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+                    fireworksCtx.fill();
+                }
+            }
+        }
+
+        function createFirework() {
+            const x = Math.random() * fireworksCanvas.width;
+            const y = Math.random() * fireworksCanvas.height / 2;
+            const color = fireworksColors[Math.floor(Math.random() * fireworksColors.length)];
+            new Firework(x, y, color).draw();
+        }
+
+        setInterval(() => createFirework(), 700);
+
+        // Confetes
+        const confettiCanvas = document.querySelector('.confetti');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+
+        const confettiColors = ['#FFD700', '#FF4500', '#FF69B4', '#87CEEB', '#32CD32'];
+        const confetti = [];
+
+        class ConfettiPiece {
+            constructor() {
+                this.x = Math.random() * confettiCanvas.width;
+                this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+                this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 10 - 5;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+                if (this.y > confettiCanvas.height) this.y = -10;
+                this.draw();
+            }
+            draw() {
+                confettiCtx.save();
+                confettiCtx.translate(this.x, this.y);
+                confettiCtx.rotate(this.rotation * Math.PI / 180);
+                confettiCtx.fillStyle = this.color;
+                confettiCtx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                confettiCtx.restore();
+            }
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 200; i++) {
+                confetti.push(new ConfettiPiece());
+            }
+        }
+
+        function animateConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confetti.forEach(piece => piece.update());
+            requestAnimationFrame(animateConfetti);
+        }
+
+        createConfetti();
+        animateConfetti();
+    </script>
+</body>
+</html>
